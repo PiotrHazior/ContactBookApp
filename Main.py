@@ -59,7 +59,7 @@ def Register():
     
 
 def FindContact():
-    phone = input("Please provide your phone number: ")
+    phone = input("Please provide phone number: ")
     cursor.execute('SELECT * FROM Person WHERE phone = %s', (phone,))
     person = cursor.fetchall()
     
@@ -213,23 +213,59 @@ def DeleteContact():
 # Register()
 # UpdateContact()
 
-
-
-
-cursor.execute('SELECT * FROM Person')
-persons = cursor.fetchall()
-print("Tabela Person:")
-for person in persons:
-    print(person)
+def Login():
+    phone = input("Please provide phone number: ")
+    cursor.execute('SELECT * FROM Person WHERE phone = %s', (phone,))
+    person = cursor.fetchone()
     
-# cursor.execute('DELETE FROM Person')
-# cursor.execute("ALTER TABLE Person ADD COLUMN role VARCHAR(10) NOT NULL CHECK (role in ('User', 'Admin'))")
-# cursor.execute('ALTER TABLE Person DROP COLUMN role')
+    if person: 
+        role_id = person[5]
 
-# cursor.execute('DELETE FROM Role')
+        if role_id == 1:
+            print("Welcome Admin!")
+            admin_choose = input("Do you want update, find or delete a contact?: ")
+            
+            if admin_choose == 'update':
+                UpdateContact()
+            elif admin_choose == 'find':
+                FindContact()
+            elif admin_choose == 'delete':
+                DeleteContact()
+        
+        elif role_id == 2:
+            name = person[1]
+            print(f"Welcome {name}!")
+            print("You can only view the details of your contact.")
+            user = input("Do you want? Yes/No: ")
+            
+            if user == 'Yes':
+                cursor.execute('SELECT * FROM Person WHERE phone = %s', (phone,))
+                person = cursor.fetchall()
+                if person:
+                    print("Data about the person with this number:")
+                    print(person)
+            else:
+                return
+            
+    else:
+        print('There is no such phone number in the contact database.')  
+        new_user = input("Would you like to register? Yes/No: ")
+        
+        if new_user == 'Yes':
+            Register()      
+        else:
+            return
+    
+    
+Login()           
 
-# cursor.execute("DROP TABLE IF EXISTS Person")
-# cursor.execute("DROP TABLE IF EXISTS Role")
+
+# cursor.execute('SELECT * FROM Person')
+# persons = cursor.fetchall()
+# print("Tabela Person:")
+# for person in persons:
+#     print(person)
+    
 
 db.commit()
 
